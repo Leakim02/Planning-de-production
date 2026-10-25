@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planning de Production - Boulangerie Artisanale</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        bakery: {
+                            50: '#fffbeedb',
+                            100: '#fef3c7',
+                            200: '#fde68a',
+                            500: '#d97706',
+                            600: '#b45309',
+                            700: '#92400e',
+                            800: '#78350f',
+                            900: '#451a03',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .print-only-header { display: none; }
+
+        @media print {
+            @page { size: A4 portrait; margin: 10mm 8mm; }
+            body { background: white !important; font-size: 9pt; color: #0f172a !important; }
+            .print-only-header { display: block !important; margin: 0 0 7mm 0; color: #0f172a !important; }
+
+            .print-title-line { display:flex; justify-content:space-between; align-items:center; min-height:28mm; box-sizing:border-box; padding:5mm 7mm 5.5mm; margin-bottom:4.5mm; background:#172033 !important; color:white !important; border:0 !important; border-bottom:3px solid #f59e0b !important; border-radius:4mm !important; overflow:hidden; box-shadow:none !important; }
+            .print-main-title { font-family:Arial,sans-serif; font-size:19pt; font-weight:700; line-height:1.05; color:#f8fafc !important; }
+            .print-subtitle { margin-top:2mm; font-size:9pt; color:#dbe4f0 !important; }
+            .print-poste { font-size:9pt; font-weight:800; letter-spacing:.06em; white-space:nowrap; padding:2.5mm 5mm; color:white !important; background:#f59e0b !important; border-radius:8mm !important; }
+
+            .print-legend { display:grid; gap:3mm; border:0 !important; }
+            .print-legend.print-cols-1 {grid-template-columns:repeat(1,1fr)} .print-legend.print-cols-2 {grid-template-columns:repeat(2,1fr)} .print-legend.print-cols-3 {grid-template-columns:repeat(3,1fr)} .print-legend.print-cols-4 {grid-template-columns:repeat(4,1fr)} .print-legend.print-cols-5 {grid-template-columns:repeat(5,1fr)}
+            .print-legend-item { min-height:15mm; box-sizing:border-box; padding:2.5mm 3.5mm; border:1px solid #cbd5e1 !important; border-top-width:1.5px !important; border-radius:2.5mm !important; background:#fff !important; }
+            .print-legend-item[data-col="bag_lendemain"] {background:#fffbeb !important;border-color:#fcd34d !important;border-top-color:#d97706 !important} .print-legend-item[data-col="bag_jour"] {background:#eff8ff !important;border-color:#93c5fd !important;border-top-color:#0284c7 !important} .print-legend-item[data-col="pain_complet"] {background:#f0fdf4 !important;border-color:#86efac !important;border-top-color:#16a34a !important} .print-legend-item[data-col="pain_special"] {background:#eef2ff !important;border-color:#a5b4fc !important;border-top-color:#4f46e5 !important} .print-legend-item[data-col="autre"] {background:#faf5ff !important;border-color:#d8b4fe !important;border-top-color:#9333ea !important}
+            .print-legend strong {display:block;font-size:7.3pt;margin-bottom:1.5mm;font-weight:800} .print-legend span {display:block;font-size:6.8pt;line-height:1.25}
+            .print-legend-item[data-col="bag_lendemain"] strong,.print-legend-item[data-col="bag_lendemain"] span{color:#92400e!important}.print-legend-item[data-col="bag_jour"] strong,.print-legend-item[data-col="bag_jour"] span{color:#075985!important}.print-legend-item[data-col="pain_complet"] strong,.print-legend-item[data-col="pain_complet"] span{color:#166534!important}.print-legend-item[data-col="pain_special"] strong,.print-legend-item[data-col="pain_special"] span{color:#3730a3!important}.print-legend-item[data-col="autre"] strong,.print-legend-item[data-col="autre"] span{color:#6b21a8!important}
+
+            .print-container {padding:0 !important;margin:0 !important;max-width:100% !important;width:100% !important}
+            .print-planning-table {width:100% !important;font-family:Arial,sans-serif !important;font-size:8pt !important;table-layout:fixed !important;border-collapse:collapse !important;border:0 !important}
+            .print-planning-table thead th {padding:3mm 2.5mm !important;border:0 !important;border-top:2px solid #cbd5e1 !important;border-bottom:2px solid #cbd5e1 !important;font-size:7.6pt !important;font-weight:800 !important;text-transform:uppercase;text-align:left !important;vertical-align:middle;color:#334155 !important}
+            .print-planning-table thead th:first-child {width:18mm !important;background:#f1f5f9 !important;color:#334155 !important;border-right:1px solid #cbd5e1 !important}
+            .print-planning-table thead th[data-col="bag_lendemain"]{background:#fef3c7!important;color:#92400e!important;border-top-color:#d97706!important}.print-planning-table thead th[data-col="bag_jour"]{background:#e0f2fe!important;color:#075985!important;border-top-color:#0284c7!important}.print-planning-table thead th[data-col="pain_complet"]{background:#dcfce7!important;color:#166534!important;border-top-color:#16a34a!important}.print-planning-table thead th[data-col="pain_special"]{background:#e0e7ff!important;color:#3730a3!important;border-top-color:#4f46e5!important}.print-planning-table thead th[data-col="autre"]{background:#f3e8ff!important;color:#6b21a8!important;border-top-color:#9333ea!important}
+            .print-planning-table tbody td {background:#fff!important;color:#0f172a!important;border:0!important;border-bottom:1px solid #dbe3ec!important;padding:2.2mm 2.5mm!important;vertical-align:top!important}
+            .print-planning-table tbody td:first-child {width:18mm!important;background:#f8fafc!important;border-right:1px solid #dbe3ec!important;text-align:center!important}
+            .print-planning-table.print-cols-1 td[data-col],.print-planning-table.print-cols-1 th[data-col]{width:calc((100% - 18mm)/1)!important}.print-planning-table.print-cols-2 td[data-col],.print-planning-table.print-cols-2 th[data-col]{width:calc((100% - 18mm)/2)!important}.print-planning-table.print-cols-3 td[data-col],.print-planning-table.print-cols-3 th[data-col]{width:calc((100% - 18mm)/3)!important}.print-planning-table.print-cols-4 td[data-col],.print-planning-table.print-cols-4 th[data-col]{width:calc((100% - 18mm)/4)!important}.print-planning-table.print-cols-5 td[data-col],.print-planning-table.print-cols-5 th[data-col]{width:calc((100% - 18mm)/5)!important}
+            .print-planning-table .row-time-input {appearance:none!important;-webkit-appearance:none!important;border:0!important;padding:0!important;width:100%!important;font-size:8.5pt!important;font-weight:800!important;color:#0f172a!important;background:transparent!important;text-align:center!important}
+            .print-planning-table .task-select,.print-planning-table .custom-duration-input,.print-planning-table .no-print{display:none!important}
+            .print-planning-table .badge-task {display:block!important;border:0!important;border-left:2px solid currentColor!important;box-shadow:none!important;padding:1.8mm 2.5mm!important;margin:0!important;border-radius:1.5mm!important;color:#334155!important}
+            .print-planning-table td[data-col="bag_lendemain"] .badge-task{background:#fffbeb!important;color:#92400e!important}.print-planning-table td[data-col="bag_jour"] .badge-task{background:#eff8ff!important;color:#075985!important}.print-planning-table td[data-col="pain_complet"] .badge-task{background:#f0fdf4!important;color:#166534!important}.print-planning-table td[data-col="pain_special"] .badge-task{background:#eef2ff!important;color:#3730a3!important}.print-planning-table td[data-col="autre"] .badge-task{background:#faf5ff!important;color:#6b21a8!important}
+            .print-planning-table .badge-task > div:first-child{display:block!important}.print-planning-table .badge-task > div:first-child > div{display:none!important}.print-planning-table .badge-task span{font-size:8pt!important;font-weight:600!important}.print-planning-table .badge-task > div:last-child{display:block!important;border:0!important;padding:0!important;margin:1mm 0 0!important;font-size:6.8pt!important;color:currentColor!important;opacity:.9}.print-planning-table .badge-task > div:last-child > span{font-size:6.8pt!important;font-weight:400!important;color:currentColor!important}
+            .print-planning-table [data-col].hidden,.print-legend [data-col].hidden{display:none!important}
+            .print-planning-table .insert-row-control,.no-print{display:none!important}
+            .shadow-lg,.shadow-md,.shadow-sm,.shadow{box-shadow:none!important} table{page-break-inside:auto;border-collapse:collapse!important;width:100%!important} tr{page-break-inside:avoid;page-break-after:auto}
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        option:disabled {
+            color: #94a3b8 !important;
+            background-color: #f1f5f9 !important;
+            font-style: italic;
+        }
+
+        .insert-row-control {
+            height: 0;
+            position: relative;
+            z-index: 10;
+        }
+        .insert-row-control button {
+            transform: translateY(-50%);
+        }
+    
+
+        /* ===== IMPRESSION A4 — VERSION MODERNE ET COMPACTE ===== */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 5mm 6mm;
+            }
+
+            html, body {
+                width: 100% !important;
+                min-height: 100% !important;
+                background: #fff !important;
+            }
+
+            body {
+                font-size: 8pt !important;
+                color: #172033 !important;
+                zoom: 0.90;
+            }
+
+            .print-only-header {
+                margin: 0 0 3mm 0 !important;
+            }
+
+            /* Bandeau supérieur moderne et peu haut */
+            .print-title-line {
+                min-height: 17mm !important;
+                height: 17mm !important;
+                padding: 2.5mm 4mm !important;
+                margin-bottom: 2.5mm !important;
+                border-radius: 3mm !important;
+                border-bottom-width: 2px !important;
+            }
+
+            .print-main-title {
+                font-size: 16pt !important;
+                letter-spacing: -0.02em;
+            }
+
+            .print-subtitle {
+                margin-top: 0.8mm !important;
+                font-size: 7pt !important;
+            }
+
+            .print-poste {
+                font-size: 7.5pt !important;
+                padding: 1.7mm 3.5mm !important;
+            }
+
+            /* À l'impression : aucune légende ni badge de catégorie */
+            .print-legend {
+                display: none !important;
+            }
+
+            /* Tableau très compact */
+            .print-container {
+                padding: 0 !important;
+                margin: 0 !important;
+                gap: 0 !important;
+            }
+
+            .print-planning-table {
+                font-size: 7.3pt !important;
+                border-collapse: separate !important;
+                border-spacing: 0 !important;
+                border: 1px solid #cbd5e1 !important;
+                border-radius: 2.5mm !important;
+                overflow: hidden !important;
+            }
+
+            .print-planning-table thead th {
+                padding: 2mm 1.8mm !important;
+                font-size: 6.7pt !important;
+                line-height: 1.05 !important;
+                border-top: 0 !important;
+                border-bottom: 1px solid #cbd5e1 !important;
+            }
+
+            .print-planning-table thead th:first-child {
+                width: 23mm !important;
+                min-width: 23mm !important;
+                border-left: 0 !important;
+                white-space: nowrap !important;
+            }
+
+            .print-planning-table tbody td {
+                padding: 1.25mm 1.6mm !important;
+                height: 6.5mm !important;
+                border-bottom: 1px solid #e2e8f0 !important;
+                vertical-align: middle !important;
+            }
+
+            .print-planning-table tbody td:first-child {
+                width: 23mm !important;
+                min-width: 23mm !important;
+                vertical-align: middle !important;
+                overflow: visible !important;
+                white-space: nowrap !important;
+            }
+
+            .print-planning-table .row-time-input {
+                display: block !important;
+                box-sizing: border-box !important;
+                width: 100% !important;
+                min-width: 21mm !important;
+                height: auto !important;
+                overflow: visible !important;
+                white-space: nowrap !important;
+                font-size: 8.2pt !important;
+                line-height: 1.2 !important;
+                font-weight: 800 !important;
+                text-align: center !important;
+                letter-spacing: 0 !important;
+            }
+
+            /* À l'impression : uniquement le nom de la tâche, sans durée, fin, icône ou réglage */
+            .print-planning-table .badge-task {
+                min-height: 0 !important;
+                padding: 1.35mm 2mm !important;
+                margin: 0 !important;
+                border-radius: 1.8mm !important;
+                border-left-width: 2.5px !important;
+                box-shadow: none !important;
+                line-height: 1.1 !important;
+            }
+
+            .print-planning-table .badge-task > div:first-child {
+                display: block !important;
+            }
+
+            .print-planning-table .badge-task > div:first-child > div {
+                display: none !important;
+            }
+
+            /* Fonds de tâches plus francs et colorés */
+            .print-planning-table td[data-col="bag_lendemain"] .badge-task { background:#f59e0b !important; color:#78350f !important; border-left-color:#d97706 !important; }
+            .print-planning-table td[data-col="bag_jour"] .badge-task { background:#0ea5e9 !important; color:#082f49 !important; border-left-color:#0284c7 !important; }
+            .print-planning-table td[data-col="pain_complet"] .badge-task { background:#22c55e !important; color:#14532d !important; border-left-color:#16a34a !important; }
+            .print-planning-table td[data-col="pain_special"] .badge-task { background:#6366f1 !important; color:#1e1b4b !important; border-left-color:#4f46e5 !important; }
+            .print-planning-table td[data-col="autre"] .badge-task { background:#a855f7 !important; color:#3b0764 !important; border-left-color:#9333ea !important; }
+
+            .print-planning-table .badge-task span {
+                font-size: 7pt !important;
+                font-weight: 800 !important;
+                line-height: 1.1 !important;
+                color: inherit !important;
+            }
+
+            .print-planning-table .badge-task > div:last-child {
+                display: none !important;
+            }
+
+            /* Dernière ligne sans marge visuelle */
+            .print-planning-table tbody tr:last-child td {
+                border-bottom: 0 !important;
+            }
+
+            /* Une seule feuille : aucun élément d'interface ne doit provoquer une coupure */
+            .print-only-header,
+            .print-container,
+            .print-planning-table {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+            }
+
+            .print-planning-table tr {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+            }
+        }
+</style>
+</head>
+<body class="h-full text-slate-800 antialiased flex flex-col font-sans selection:bg-amber-200 selection:text-amber-900">
+
+    <header class="bg-gradient-to-r from-bakery-900 via-amber-950 to-slate-900 text-white shadow-md no-print sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-amber-500/20 rounded-xl border border-amber-400/30">
+                    <i data-lucide="wheat" class="w-6 h-6 text-amber-400"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold font-heading tracking-tight text-amber-100">Planning de Production</h1>
+                    <p class="text-xs text-amber-200/70 font-medium">Boulangerie &amp; Pâtisserie Artisanale</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 flex-wrap">
+                <!-- Vider Le Tableau Button -->
+                <button id="btn-clear-table" class="flex items-center gap-1.5 px-3.5 py-1.5 bg-rose-700 hover:bg-rose-600 text-white rounded-xl text-xs font-semibold transition border border-rose-500/50 shadow-sm active:scale-95">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                    <span>Vider le tableau</span>
+                </button>
+
+                <!-- Paramètres Button -->
+                <button id="btn-open-settings" class="flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold transition border border-slate-700 shadow-sm active:scale-95">
+                    <i data-lucide="settings-2" class="w-3.5 h-3.5 text-amber-400"></i>
+                    <span>Paramètres Tâches &amp; Durées</span>
+                </button>
+
+                <!-- Imprimer PDF Button -->
+                <button onclick="window.print()" class="flex items-center gap-1.5 px-4 py-1.5 bg-amber-500 hover:bg-amber-400 text-amber-950 font-bold rounded-xl text-xs transition shadow-sm active:scale-95">
+                    <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                    <span>Imprimer / PDF</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <section class="print-only-header">
+        <div class="print-title-line">
+            <div>
+                <div class="print-main-title">Planning de Production</div>
+                <div class="print-subtitle">Organisation quotidienne de l’atelier de boulangerie</div>
+            </div>
+            <div class="print-poste">POSTE BOULANGERIE</div>
+        </div>
+        <div class="print-legend">
+            <div data-col="bag_lendemain" class="print-legend-item"><strong>BAG. DU LENDEMAIN</strong><span>Autolyse, Pétrissage, Mise en bac</span></div>
+            <div data-col="bag_jour" class="print-legend-item"><strong>BAG. DU JOUR</strong><span>Division, Façonnage, Cuisson</span></div>
+            <div data-col="pain_complet" class="print-legend-item"><strong>CAMPAGNE (C°)</strong><span>Division, Façonnage, Cuisson, Tranchage</span></div>
+            <div data-col="pain_special" class="print-legend-item"><strong>PAIN SPÉCIAL</strong><span>Production spéciale, façonnage, cuisson</span></div>
+            <div data-col="autre" class="print-legend-item"><strong>AUTRE / LABO</strong><span>Levain, Congélateur, Pâtisserie</span></div>
+        </div>
+    </section>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 print-container flex flex-col gap-6">
+        
+        <!-- Controls & Column Visibility Bar -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 flex flex-wrap items-center justify-between gap-4 no-print">
+            <div class="flex flex-wrap items-center gap-3">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                    <i data-lucide="columns" class="w-4 h-4 text-slate-400"></i>
+                    Colonnes affichées :
+                </span>
+                <div class="flex flex-wrap gap-2" id="column-toggles-container">
+                    <!-- Column switches dynamically injected -->
+                </div>
+            </div>
+
+            <button id="btn-add-row" class="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition shadow-sm hover:shadow active:scale-95">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                <span>Ajouter un horaire</span>
+            </button>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse print-planning-table" id="planning-table">
+                    <thead>
+                        <tr class="bg-slate-900 text-white text-xs font-bold tracking-wider uppercase border-b border-slate-800">
+                            <!-- Horaire column (Fixed) -->
+                            <th class="py-3.5 px-4 w-32 border-r border-slate-800 bg-slate-950 text-amber-300">
+                                <div class="flex items-center gap-1.5">
+                                    <i data-lucide="clock" class="w-4 h-4"></i>
+                                    <span>Horaire</span>
+                                </div>
+                            </th>
+                            <!-- Bag. du Lendemain -->
+                            <th data-col="bag_lendemain" class="py-3.5 px-4 min-w-[210px] border-r border-slate-800">
+                                <div class="flex items-center justify-between">
+                                    <span>Bag. du Lendemain</span>
+                                    <span class="text-[10px] font-normal normal-case px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">J+1</span>
+                                </div>
+                            </th>
+                            <!-- Bag. du Jour -->
+                            <th data-col="bag_jour" class="py-3.5 px-4 min-w-[210px] border-r border-slate-800">
+                                <div class="flex items-center justify-between">
+                                    <span>Bag. du Jour</span>
+                                    <span class="text-[10px] font-normal normal-case px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30">Direct</span>
+                                </div>
+                            </th>
+                            <!-- Pain Complet -->
+                            <th data-col="pain_complet" class="py-3.5 px-4 min-w-[210px] border-r border-slate-800">
+                                <div class="flex items-center justify-between">
+                                    <span>Pain Complet</span>
+                                    <span class="text-[10px] font-normal normal-case px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Complet</span>
+                                </div>
+                            </th>
+                            <!-- Pain Spécial (Hidden by default) -->
+                            <th data-col="pain_special" class="py-3.5 px-4 min-w-[210px] border-r border-slate-800">
+                                <div class="flex items-center justify-between">
+                                    <span>Pain Spécial</span>
+                                    <span class="text-[10px] font-normal normal-case px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Spécialité</span>
+                                </div>
+                            </th>
+                            <!-- Autre -->
+                            <th data-col="autre" class="py-3.5 px-4 min-w-[230px]">
+                                <div class="flex items-center justify-between">
+                                    <span>Autre</span>
+                                    <span class="text-[10px] font-normal normal-case px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">Ménage &amp; Pauses</span>
+                                </div>
+                            </th>
+                            <!-- Action column -->
+                            <th class="py-3.5 px-3 w-12 text-center no-print bg-slate-950"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="schedule-tbody" class="divide-y divide-slate-100 text-sm">
+                        <!-- Rows rendered dynamically via JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State Display -->
+            <div id="empty-state" class="p-12 text-center">
+                <div class="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-3 border border-amber-200/60">
+                    <i data-lucide="calendar-plus" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-slate-800 font-bold text-base font-heading">Le tableau de production est totalement vide</h3>
+                <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">Commencez par ajouter un horaire de démarrage. La sélection d'une tâche créera et calculera automatiquement les horaires suivants !</p>
+                <button id="btn-empty-add-row" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition shadow">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    <span>Ajouter un premier horaire</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Legend and Workflow Information -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs no-print">
+            <div class="bg-amber-50/80 border border-amber-200/80 rounded-xl p-3">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="font-bold text-amber-900 uppercase tracking-wide">Bag. Lendemain</span>
+                    <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                </div>
+                <p class="text-amber-800/80 text-[11px]">Autolyse, Pétrissage, Mise en bac.</p>
+            </div>
+
+            <div class="bg-sky-50/80 border border-sky-200/80 rounded-xl p-3">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="font-bold text-sky-900 uppercase tracking-wide">Bag. du Jour</span>
+                    <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+                </div>
+                <p class="text-sky-800/80 text-[11px]">Autolyse, Pétrissage, Bac, Division, Façonnage, Cuisson, Envoi.</p>
+            </div>
+
+            <div class="bg-emerald-50/80 border border-emerald-200/80 rounded-xl p-3">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="font-bold text-emerald-900 uppercase tracking-wide">Pain Complet</span>
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                </div>
+                <p class="text-emerald-800/80 text-[11px]">Pétrissage, Bac, Division, Façonnage, Cuisson, Tranchage.</p>
+            </div>
+
+            <div class="bg-indigo-50/80 border border-indigo-200/80 rounded-xl p-3">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="font-bold text-indigo-900 uppercase tracking-wide">Pain Spécial</span>
+                    <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                </div>
+                <p class="text-indigo-800/80 text-[11px]">Chainage étape par étape avec durées modulables.</p>
+            </div>
+
+            <div class="bg-purple-50/80 border border-purple-200/80 rounded-xl p-3">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="font-bold text-purple-900 uppercase tracking-wide">Autre</span>
+                    <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+                </div>
+                <p class="text-purple-800/80 text-[11px]">Pesées, ménage, matériel, pauses (+5 min si parallèle autolyse/pétrissage).</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal: Add New Time Row -->
+    <div id="modal-add-row" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-100">
+            <div class="bg-slate-900 px-6 py-4 text-white flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="clock" class="w-5 h-5 text-amber-400"></i>
+                    <h3 class="font-bold text-base font-heading">Ajouter un horaire</h3>
+                </div>
+                <button type="button" class="close-modal text-slate-400 hover:text-white transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <form id="form-add-row" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Horaire de démarrage :</label>
+                    <input type="time" id="input-new-time" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 font-bold text-slate-900 text-lg">
+                    <p class="insert-time-help text-xs text-slate-400 mt-1.5">L'horaire sera inséré au bon endroit par ordre chronologique.</p>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" class="close-modal px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition">Annuler</button>
+                    <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition shadow">Ajouter au planning</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Task Settings and Defaults Config -->
+    <div id="modal-settings" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-3xl w-full shadow-2xl overflow-hidden border border-slate-100 flex flex-col max-h-[90vh]">
+            <div class="bg-slate-900 px-6 py-4 text-white flex justify-between items-center flex-shrink-0">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="sliders" class="w-5 h-5 text-amber-400"></i>
+                    <div>
+                        <h3 class="font-bold text-base font-heading">Paramètres des Tâches &amp; Durées</h3>
+                        <p class="text-xs text-slate-300">Modifiez les durées par défaut ou ajoutez de nouvelles tâches par colonne</p>
+                    </div>
+                </div>
+                <button type="button" class="close-modal text-slate-400 hover:text-white transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto flex-1 space-y-6">
+                <!-- Add New Custom Task -->
+                <div class="bg-amber-50/60 border border-amber-200/80 rounded-xl p-4 space-y-3">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-amber-900 flex items-center gap-1.5">
+                        <i data-lucide="plus-circle" class="w-4 h-4 text-amber-600"></i>
+                        <span>Créer une tâche personnalisée</span>
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Colonne :</label>
+                            <select id="new-task-col-select" class="w-full text-xs font-medium bg-white border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-amber-500 outline-none">
+                                <option value="bag_lendemain">BAG. DU LENDEMAIN</option>
+                                <option value="bag_jour">BAG. DU JOUR</option>
+                                <option value="pain_complet">PAIN COMPLET</option>
+                                <option value="pain_special">PAIN SPECIAL</option>
+                                <option value="autre">AUTRE</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nom de la tâche :</label>
+                            <input type="text" id="new-task-name" placeholder="Ex: Tranchage spécial" class="w-full text-xs font-medium bg-white border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-amber-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Durée par défaut (min) :</label>
+                            <input type="number" id="new-task-duration" min="0" max="360" placeholder="Ex: 25" class="w-full text-xs font-medium bg-white border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-amber-500 outline-none">
+                        </div>
+                    </div>
+                    <div class="flex justify-end">
+                        <button type="button" id="btn-add-custom-task" class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-lg transition shadow-sm flex items-center gap-1.5">
+                            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                            <span>Ajouter la tâche</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Existing Tasks Managed by Column -->
+                <div class="space-y-4" id="settings-durations-list">
+                    <!-- Injected dynamically -->
+                </div>
+            </div>
+
+            <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex items-center justify-between flex-shrink-0">
+                <button id="btn-reset-defaults" type="button" class="flex items-center gap-1.5 px-3 py-2 text-rose-600 hover:bg-rose-50 rounded-xl text-xs font-semibold transition border border-rose-200">
+                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                    <span>Réinitialiser aux durées usine</span>
+                </button>
+                <div class="flex gap-2">
+                    <button type="button" class="close-modal px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-xl transition">Annuler</button>
+                    <button id="btn-save-settings" type="button" class="px-5 py-2 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-xl transition shadow">Enregistrer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Default Factory Durations in Minutes
+        const FACTORY_DURATIONS = {
+            "Pause Déjeuné": 60,
+            "Nettoyage Boulangerie": 60,
+            "Pétrissage (BAG. DU JOUR / LENDEMAIN)": 45,
+            "Pétrissage (PAIN COMPLET)": 40,
+            "Autolyse": 35,
+            "Cuisson (PAIN COMPLET)": 34,
+            "Division": 30,
+            "Façonnage": 30,
+            "Nettoyage Pâtisserie": 30,
+            "Réunion d'équipe": 30,
+            "Cuisson (BAG. DU JOUR)": 24,
+            "Diviseuse": 20,
+            "Pause": 15,
+            "Mise en bac": 15,
+            "Pétrin": 15,
+            "D10": 15,
+            "Yaourt": 15,
+            "Congel": 15,
+            "(Pesée, levain)": 20,
+            "Tranchage": 20,
+            "Envoi du pain": 30,
+            "Autolyse (PAIN SPECIAL)": 0,
+            "Pétrissage (PAIN SPECIAL)": 0,
+            "Mise en bac (PAIN SPECIAL)": 0,
+            "Division (PAIN SPECIAL)": 0,
+            "Façonnage (PAIN SPECIAL)": 0,
+            "Cuisson (PAIN SPECIAL)": 0,
+            "Envoi du pain (PAIN SPECIAL)": 0
+        };
+
+        // Factory Column Tasks
+        const FACTORY_COLUMN_TASKS = {
+            bag_lendemain: [
+                { name: "Autolyse", key: "Autolyse" },
+                { name: "Pétrissage", key: "Pétrissage (BAG. DU JOUR / LENDEMAIN)" },
+                { name: "Mise en bac", key: "Mise en bac" }
+            ],
+            bag_jour: [
+                { name: "Autolyse", key: "Autolyse" },
+                { name: "Pétrissage", key: "Pétrissage (BAG. DU JOUR / LENDEMAIN)" },
+                { name: "Mise en bac", key: "Mise en bac" },
+                { name: "Division", key: "Division" },
+                { name: "Façonnage", key: "Façonnage" },
+                { name: "Cuisson", key: "Cuisson (BAG. DU JOUR)" },
+                { name: "Envoi du pain", key: "Envoi du pain" }
+            ],
+            pain_complet: [
+                { name: "Pétrissage", key: "Pétrissage (PAIN COMPLET)" },
+                { name: "Mise en bac", key: "Mise en bac" },
+                { name: "Division", key: "Division" },
+                { name: "Façonnage", key: "Façonnage" },
+                { name: "Cuisson", key: "Cuisson (PAIN COMPLET)" },
+                { name: "Tranchage", key: "Tranchage" }
+            ],
+            pain_special: [
+                { name: "Autolyse", key: "Autolyse (PAIN SPECIAL)" },
+                { name: "Pétrissage", key: "Pétrissage (PAIN SPECIAL)" },
+                { name: "Mise en bac", key: "Mise en bac (PAIN SPECIAL)" },
+                { name: "Division", key: "Division (PAIN SPECIAL)" },
+                { name: "Façonnage", key: "Façonnage (PAIN SPECIAL)" },
+                { name: "Cuisson", key: "Cuisson (PAIN SPECIAL)" },
+                { name: "Envoi du pain", key: "Envoi du pain (PAIN SPECIAL)" }
+            ],
+            autre: [
+                { name: "(Pesée, levain)", key: "(Pesée, levain)" },
+                { name: "Congel", key: "Congel" },
+                { name: "Yaourt", key: "Yaourt" },
+                { name: "Diviseuse", key: "Diviseuse" },
+                { name: "Pétrin", key: "Pétrin" },
+                { name: "Pause", key: "Pause" },
+                { name: "D10", key: "D10" },
+                { name: "Nettoyage Boulangerie", key: "Nettoyage Boulangerie" },
+                { name: "Nettoyage Pâtisserie", key: "Nettoyage Pâtisserie" },
+                { name: "Pause Déjeuné", key: "Pause Déjeuné" },
+                { name: "Réunion d'équipe", key: "Réunion d'équipe" }
+            ]
+        };
+
+        // Task Group Definitions for Conflict Validation
+        const MANUAL_EXCLUSION_TASKS = new Set([
+            "Mise en bac", "Division", "Façonnage", "Envoi du pain", "Tranchage", 
+            "(Pesée, levain)", "Congel", "Yaourt", "Diviseuse", "Pétrin", "D10", 
+            "Nettoyage Boulangerie", "Nettoyage Pâtisserie"
+        ]);
+
+        const TOTAL_INTERRUPTION_TASKS = new Set([
+            "Pause", "Pause Déjeuné", "Réunion d'équipe"
+        ]);
+
+        // Columns Definition List
+        const COLUMNS_CONFIG = [
+            { id: 'bag_lendemain', label: 'BAG. DU LENDEMAIN', visibleDefault: true },
+            { id: 'bag_jour', label: 'BAG. DU JOUR', visibleDefault: true },
+            { id: 'pain_complet', label: 'PAIN COMPLET', visibleDefault: true },
+            { id: 'pain_special', label: 'PAIN SPECIAL', visibleDefault: false },
+            { id: 'autre', label: 'AUTRE', visibleDefault: true }
+        ];
+
+        // Application State
+        let taskDurations = { ...FACTORY_DURATIONS };
+        let columnTasks = JSON.parse(JSON.stringify(FACTORY_COLUMN_TASKS));
+        let columnsVisibility = { bag_lendemain: true, bag_jour: true, pain_complet: true, pain_special: false, autre: true };
+        let scheduleData = [];
+
+        function initApp() {
+            // Load Durations
+            const savedDurations = localStorage.getItem('bakery_task_durations_v6');
+            if (savedDurations) {
+                try { taskDurations = { ...FACTORY_DURATIONS, ...JSON.parse(savedDurations) }; } catch(e){}
+            }
+
+            // Load Column Tasks
+            const savedColumnTasks = localStorage.getItem('bakery_column_tasks_v6');
+            if (savedColumnTasks) {
+                try { columnTasks = JSON.parse(savedColumnTasks); } catch(e){}
+            }
+
+            // Load Visibility
+            const savedVisibility = localStorage.getItem('bakery_col_vis_v6');
+            if (savedVisibility) {
+                try { columnsVisibility = { ...columnsVisibility, ...JSON.parse(savedVisibility) }; } catch(e){}
+            }
+
+            // Load Schedule Rows
+            const savedSchedule = localStorage.getItem('bakery_schedule_v6');
+            if (savedSchedule) {
+                try { scheduleData = JSON.parse(savedSchedule); } catch(e){ scheduleData = []; }
+            } else {
+                scheduleData = [];
+            }
+
+            renderColumnToggles();
+            recalculateScheduleCascade();
+            renderTable();
+            lucide.createIcons();
+            attachEventListeners();
+        }
+
+        function saveSchedule() {
+            localStorage.setItem('bakery_schedule_v6', JSON.stringify(scheduleData));
+        }
+
+        function saveDurations() {
+            localStorage.setItem('bakery_task_durations_v6', JSON.stringify(taskDurations));
+        }
+
+        function saveColumnTasks() {
+            localStorage.setItem('bakery_column_tasks_v6', JSON.stringify(columnTasks));
+        }
+
+        function saveVisibility() {
+            localStorage.setItem('bakery_col_vis_v6', JSON.stringify(columnsVisibility));
+        }
+
+        function renderColumnToggles() {
+            const container = document.getElementById('column-toggles-container');
+            container.innerHTML = '';
+
+            COLUMNS_CONFIG.forEach(col => {
+                const isChecked = columnsVisibility[col.id];
+                const btn = document.createElement('label');
+                btn.className = `inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-semibold cursor-pointer border transition select-none ${
+                    isChecked ? 'bg-amber-100 text-amber-900 border-amber-300' : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'
+                }`;
+                btn.innerHTML = `
+                    <input type="checkbox" class="sr-only" ${isChecked ? 'checked' : ''} data-col-id="${col.id}">
+                    <i data-lucide="${isChecked ? 'eye' : 'eye-off'}" class="w-3.5 h-3.5 ${isChecked ? 'text-amber-700' : 'text-slate-400'}"></i>
+                    <span>${col.label}</span>
+                `;
+
+                btn.querySelector('input').addEventListener('change', (e) => {
+                    columnsVisibility[col.id] = e.target.checked;
+                    saveVisibility();
+                    renderColumnToggles();
+                    applyColumnVisibility();
+                    lucide.createIcons();
+                });
+
+                container.appendChild(btn);
+            });
+            applyColumnVisibility();
+        }
+
+        function updatePrintLayout() {
+            const table = document.getElementById('planning-table');
+            const legend = document.querySelector('.print-legend');
+            if (!table) return;
+            const visibleCount = COLUMNS_CONFIG.filter(col => columnsVisibility[col.id]).length;
+            const classes = ['print-cols-1','print-cols-2','print-cols-3','print-cols-4','print-cols-5'];
+            table.classList.remove(...classes);
+            table.classList.add(`print-cols-${visibleCount}`);
+            if (legend) {
+                legend.classList.remove(...classes);
+                legend.classList.add(`print-cols-${visibleCount}`);
+            }
+        }
+
+        function applyColumnVisibility() {
+            COLUMNS_CONFIG.forEach(col => {
+                const isVisible = columnsVisibility[col.id];
+                const elements = document.querySelectorAll(`[data-col="${col.id}"]`);
+                elements.forEach(el => {
+                    if (isVisible) {
+                        el.classList.remove('hidden');
+                    } else {
+                        el.classList.add('hidden');
+                    }
+                });
+            });
+            updatePrintLayout();
+        }
+
+        function parseTimeToMinutes(timeStr) {
+            if (!timeStr) return 0;
+            const parts = timeStr.split(':');
+            if (parts.length < 2) return 0;
+            return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+        }
+
+        function formatMinutesToTime(totalMinutes) {
+            let normalized = totalMinutes % (24 * 60);
+            if (normalized < 0) normalized += 24 * 60;
+            const hours = Math.floor(normalized / 60);
+            const minutes = normalized % 60;
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+        }
+
+        function calculateEndTime(startTimeStr, durationMinutes) {
+            if (!startTimeStr || durationMinutes === undefined || durationMinutes === null) return '';
+            const dur = parseInt(durationMinutes, 10);
+            if (isNaN(dur) || dur <= 0) return 'Indéfinie';
+
+            const totalMin = parseTimeToMinutes(startTimeStr) + dur;
+            const formatted = formatMinutesToTime(totalMin);
+            return formatted.replace(':', 'h');
+        }
+
+        /**
+         * Checks if a row contains Autolyse or Pétrissage
+         */
+        function rowHasAutolyseOrPetrissage(row) {
+            return COLUMNS_CONFIG.some(col => {
+                const cell = row[col.id];
+                return cell && cell.task && (cell.task === "Autolyse" || cell.task === "Pétrissage");
+            });
+        }
+
+        /**
+         * Calculates effective duration for a cell including +5 min buffer rule if parallel with Autolyse or Pétrissage.
+         */
+        function getCellEffectiveDuration(row, colId) {
+            const cell = row[colId];
+            if (!cell || !cell.task) return 0;
+
+            const durationKey = cell.key || cell.task;
+            const defaultDur = taskDurations[durationKey] !== undefined ? taskDurations[durationKey] : 0;
+            let baseDur = cell.customDuration !== undefined ? cell.customDuration : defaultDur;
+
+            // Check if parallel to Autolyse or Pétrissage in another column
+            const hasParallelMixing = COLUMNS_CONFIG.some(c => {
+                if (c.id === colId) return false;
+                const otherCell = row[c.id];
+                return otherCell && otherCell.task && (otherCell.task === "Autolyse" || otherCell.task === "Pétrissage");
+            });
+
+            const isCurrentMixing = (cell.task === "Autolyse" || cell.task === "Pétrissage");
+
+            let hasBuffer = false;
+            if (hasParallelMixing && !isCurrentMixing && baseDur > 0) {
+                baseDur += 5;
+                hasBuffer = true;
+            }
+
+            return { duration: baseDur, baseDuration: cell.customDuration !== undefined ? cell.customDuration : defaultDur, hasBuffer };
+        }
+
+        /**
+         * Returns maximum duration for a row across all columns
+         */
+        function getRowMaxDuration(row) {
+            let maxDuration = 0;
+            COLUMNS_CONFIG.forEach(col => {
+                const { duration } = getCellEffectiveDuration(row, col.id);
+                if (duration > maxDuration) {
+                    maxDuration = duration;
+                }
+            });
+            return maxDuration;
+        }
+
+        /**
+         * STREAMING_CHUNK:Recalculating entire schedule cascade based on task durations...
+         */
+        function recalculateScheduleCascade() {
+            if (scheduleData.length <= 1) return;
+
+            // Keep array ordered chronologically
+            scheduleData.sort((a, b) => a.time.localeCompare(b.time));
+
+            for (let i = 0; i < scheduleData.length - 1; i++) {
+                const currentRow = scheduleData[i];
+                const nextRow = scheduleData[i + 1];
+
+                const maxDur = getRowMaxDuration(currentRow);
+                if (maxDur > 0) {
+                    const startMin = parseTimeToMinutes(currentRow.time);
+                    const endMin = startMin + maxDur;
+
+                    // A row inserted between two existing rows keeps the exact
+                    // start time chosen by the user. However, its task duration
+                    // may push the NEXT row later, but only if the task would
+                    // otherwise overlap that next row.
+                    //
+                    // Example:
+                    //   inserted row = 10:00, duration = 20 min, next = 10:30
+                    //   -> next stays 10:30.
+                    //   inserted row = 10:00, duration = 40 min, next = 10:30
+                    //   -> next becomes 10:40.
+                    if (!nextRow.isInsertedBetweenRows) {
+                        const nextStartMin = parseTimeToMinutes(nextRow.time);
+
+                        if (currentRow.isInsertedBetweenRows) {
+                            // For an inserted row, only move the following row
+                            // when its current start time is earlier than the
+                            // end of the task.
+                            if (nextStartMin < endMin) {
+                                nextRow.time = formatMinutesToTime(endMin);
+                            }
+                        } else {
+                            // Keep the existing cascade behavior for normal rows.
+                            nextRow.time = formatMinutesToTime(endMin);
+                        }
+                    }
+                }
+            }
+        }
+
+        function getBadgeStyle(colId, taskName) {
+            if (TOTAL_INTERRUPTION_TASKS.has(taskName)) {
+                return 'bg-rose-100 text-rose-900 border-rose-300';
+            }
+            switch (colId) {
+                case 'bag_lendemain':
+                    return 'bg-amber-100 text-amber-900 border-amber-300';
+                case 'bag_jour':
+                    return 'bg-sky-100 text-sky-900 border-sky-300';
+                case 'pain_complet':
+                    return 'bg-emerald-100 text-emerald-900 border-emerald-300';
+                case 'pain_special':
+                    return 'bg-indigo-100 text-indigo-900 border-indigo-300';
+                case 'autre':
+                    return 'bg-purple-100 text-purple-900 border-purple-300';
+                default:
+                    return 'bg-slate-100 text-slate-800 border-slate-300';
+            }
+        }
+
+        function getDisabledTaskNamesForRow(row, targetColId) {
+            const disabledNames = new Set();
+
+            const activeOtherTasks = [];
+            COLUMNS_CONFIG.forEach(col => {
+                if (col.id !== targetColId && row[col.id] && row[col.id].task) {
+                    activeOtherTasks.push(row[col.id].task);
+                }
+            });
+
+            if (activeOtherTasks.length === 0) {
+                return disabledNames;
+            }
+
+            // RULE 3: Total Interruption Tasks
+            const hasTotalInterruptionActive = activeOtherTasks.some(t => TOTAL_INTERRUPTION_TASKS.has(t));
+            if (hasTotalInterruptionActive) {
+                const allTasksInCol = columnTasks[targetColId] || [];
+                allTasksInCol.forEach(t => disabledNames.add(t.name));
+                return disabledNames;
+            }
+
+            TOTAL_INTERRUPTION_TASKS.forEach(t => disabledNames.add(t));
+
+            // RULE 1: AUTOLYSE / PÉTRISSAGE CROSS EXCLUSION
+            const hasAutolyseOrPetrissageActive = activeOtherTasks.some(t => t === "Autolyse" || t === "Pétrissage");
+            if (hasAutolyseOrPetrissageActive) {
+                disabledNames.add("Autolyse");
+                disabledNames.add("Pétrissage");
+            }
+
+            // RULE 2: MANUAL EXCLUSION TASKS
+            const hasManualTaskActive = activeOtherTasks.some(t => MANUAL_EXCLUSION_TASKS.has(t));
+            if (hasManualTaskActive) {
+                MANUAL_EXCLUSION_TASKS.forEach(t => disabledNames.add(t));
+            }
+
+            return disabledNames;
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('schedule-tbody');
+            const emptyState = document.getElementById('empty-state');
+            tbody.innerHTML = '';
+
+            if (scheduleData.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            scheduleData.forEach((row, rowIndex) => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-amber-50/40 transition group';
+                tr.dataset.rowId = row.id;
+
+                // 1. Time Column
+                let html = `
+                    <td class="py-3 px-4 border-r border-slate-200 bg-slate-50/80 font-bold text-slate-800 text-sm align-top">
+                        <div class="flex items-center gap-1">
+                            <input type="time" value="${row.time}" class="row-time-input bg-transparent border-b border-transparent hover:border-slate-300 focus:border-amber-500 font-bold text-slate-900 focus:bg-white rounded px-1 text-sm outline-none transition">
+                        </div>
+                    </td>
+                `;
+
+                // 2. Task Columns
+                COLUMNS_CONFIG.forEach(col => {
+                    const cellData = row[col.id];
+                    const tasksList = columnTasks[col.id] || [];
+                    const disabledTaskNames = getDisabledTaskNamesForRow(row, col.id);
+                    
+                    html += `<td data-col="${col.id}" class="py-3 px-4 border-r border-slate-200 align-top ${columnsVisibility[col.id] ? '' : 'hidden'}">`;
+                    html += `<div class="space-y-2">`;
+                    
+                    // Task Select Dropdown
+                    html += `
+                        <select data-col="${col.id}" class="task-select w-full bg-slate-50 hover:bg-slate-100 focus:bg-white text-xs border border-slate-200 rounded-lg p-1.5 focus:ring-2 focus:ring-amber-500 outline-none transition cursor-pointer font-medium text-slate-800">
+                            <option value="">-- Aucune tâche --</option>
+                    `;
+
+                    tasksList.forEach(t => {
+                        const isSelected = cellData && cellData.task === t.name;
+                        const isDisabled = disabledTaskNames.has(t.name) && !isSelected;
+                        const labelText = isDisabled ? `${t.name} (Grisé)` : t.name;
+
+                        html += `<option value="${t.name}" data-key="${t.key}" ${isSelected ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}>${labelText}</option>`;
+                    });
+
+                    // Custom task fallback
+                    if (cellData && !tasksList.some(t => t.name === cellData.task)) {
+                        html += `<option value="${cellData.task}" selected>${cellData.task}</option>`;
+                    }
+
+                    html += `</select>`;
+
+                    // Badge and Duration Controls
+                    if (cellData && cellData.task) {
+                        const { duration, baseDuration, hasBuffer } = getCellEffectiveDuration(row, col.id);
+                        const endTimeFormatted = calculateEndTime(row.time, duration);
+                        const badgeStyle = getBadgeStyle(col.id, cellData.task);
+
+                        html += `
+                            <div class="badge-task flex flex-col gap-1.5 p-2 rounded-xl border ${badgeStyle} shadow-sm">
+                                <div class="flex items-center justify-between gap-1">
+                                    <span class="font-bold text-xs">${cellData.task}</span>
+                                    <div class="flex items-center gap-1">
+                                        ${hasBuffer ? '<span class="text-[9px] bg-amber-500 text-white font-bold px-1.5 py-0.5 rounded-md shadow-xs">+5 min (chevauchement)</span>' : ''}
+                                        <span class="text-[11px] font-semibold opacity-90">${duration > 0 ? duration + ' min' : 'Non déf.'}</span>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between gap-2 text-[10px] text-slate-600 border-t border-slate-200/80 pt-1 mt-0.5">
+                                    <span class="flex items-center gap-1 font-medium">
+                                        <i data-lucide="arrow-right-circle" class="w-3 h-3 text-slate-400"></i>
+                                        Fin : <strong class="text-slate-900">${endTimeFormatted}</strong>
+                                    </span>
+                                    <div class="flex items-center gap-1 no-print">
+                                        <label class="text-[9px] text-slate-400 uppercase font-semibold">Min:</label>
+                                        <input type="number" value="${baseDuration}" min="0" max="480" class="custom-duration-input w-12 text-center bg-white/90 border border-slate-300 rounded text-xs font-bold text-slate-800 focus:ring-1 focus:ring-amber-500">
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    html += `</div></td>`;
+                });
+
+                // Row Action Button
+                html += `
+                    <td class="py-3 px-2 text-center align-middle no-print">
+                        <button class="btn-delete-row text-slate-300 hover:text-rose-600 p-1.5 hover:bg-rose-50 rounded-lg transition" title="Supprimer cet horaire">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </td>
+                `;
+
+                tr.innerHTML = html;
+                tbody.appendChild(tr);
+
+                // Place the "+" control at the bottom of this row, for insertion
+                // between this row and the following row.
+                if (rowIndex < scheduleData.length - 1) {
+                    const nextRow = scheduleData[rowIndex + 1];
+                    const insertTr = document.createElement('tr');
+                    insertTr.className = 'insert-row-control no-print';
+                    insertTr.innerHTML = `
+                        <td colspan="${COLUMNS_CONFIG.length + 2}" class="p-0">
+                            <div class="relative h-0 flex items-center">
+                                <button type="button"
+                                    class="btn-insert-row relative z-10 -mt-3 ml-1 w-6 h-6 rounded-full
+                                           bg-white border border-emerald-300 text-emerald-600 shadow-sm
+                                           hover:bg-emerald-600 hover:text-white hover:border-emerald-600
+                                           transition-all duration-150 flex items-center justify-center"
+                                    data-before-id="${row.id}"
+                                    data-after-id="${nextRow.id}"
+                                    title="Ajouter une ligne entre ${row.time} et ${nextRow.time}">
+                                    <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(insertTr);
+                }
+            });
+
+            lucide.createIcons();
+            attachTableEvents();
+        }
+
+        function attachTableEvents() {
+            // Time Input Change
+            document.querySelectorAll('.row-time-input').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const rowId = e.target.closest('tr').dataset.rowId;
+                    const item = scheduleData.find(r => r.id === rowId);
+                    if (item) {
+                        item.time = e.target.value;
+                        recalculateScheduleCascade();
+                        saveSchedule();
+                        renderTable();
+                    }
+                });
+            });
+
+            // Select Task Event with Automatic Chaining & Cascade Updates
+            document.querySelectorAll('.task-select').forEach(select => {
+                select.addEventListener('change', (e) => {
+                    const rowId = e.target.closest('tr').dataset.rowId;
+                    const colId = e.target.dataset.col;
+                    const selectedName = e.target.value;
+                    const selectedOption = e.target.options[e.target.selectedIndex];
+                    const taskKey = selectedOption ? selectedOption.dataset.key : null;
+
+                    const itemIndex = scheduleData.findIndex(r => r.id === rowId);
+                    if (itemIndex !== -1) {
+                        const item = scheduleData[itemIndex];
+                        if (selectedName) {
+                            item[colId] = {
+                                task: selectedName,
+                                key: taskKey || selectedName
+                            };
+
+                            // Automatic creation of next row if this is the last row
+                            if (itemIndex === scheduleData.length - 1) {
+                                const maxDur = getRowMaxDuration(item);
+                                if (maxDur > 0) {
+                                    const nextTimeMin = parseTimeToMinutes(item.time) + maxDur;
+                                    const nextTimeFormatted = formatMinutesToTime(nextTimeMin);
+
+                                    scheduleData.push({
+                                        id: Date.now().toString(),
+                                        time: nextTimeFormatted,
+                                        bag_lendemain: null,
+                                        bag_jour: null,
+                                        pain_complet: null,
+                                        pain_special: null,
+                                        autre: null
+                                    });
+                                }
+                            }
+                        } else {
+                            item[colId] = null;
+                        }
+
+                        recalculateScheduleCascade();
+                        saveSchedule();
+                        renderTable();
+                    }
+                });
+            });
+
+            // Custom Duration Input with Dynamic Propagation
+            document.querySelectorAll('.custom-duration-input').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const tr = e.target.closest('tr');
+                    const rowId = tr.dataset.rowId;
+                    const td = e.target.closest('td');
+                    const colId = td.dataset.col;
+                    const val = parseInt(e.target.value, 10);
+
+                    const item = scheduleData.find(r => r.id === rowId);
+                    if (item && item[colId] && !isNaN(val)) {
+                        item[colId].customDuration = Math.max(0, val);
+                        recalculateScheduleCascade();
+                        saveSchedule();
+                        renderTable();
+                    }
+                });
+            });
+
+            // Insert a new row between two existing rows.
+            // The new time is restricted to the strict interval between the neighbors.
+            document.querySelectorAll('.btn-insert-row').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const beforeId = e.currentTarget.dataset.beforeId;
+                    const afterId = e.currentTarget.dataset.afterId;
+                    const beforeIndex = scheduleData.findIndex(r => r.id === beforeId);
+                    const afterIndex = scheduleData.findIndex(r => r.id === afterId);
+
+                    if (beforeIndex === -1 || afterIndex === -1 || afterIndex !== beforeIndex + 1) return;
+
+                    const beforeTime = scheduleData[beforeIndex].time;
+                    const afterTime = scheduleData[afterIndex].time;
+                    const beforeMin = parseTimeToMinutes(beforeTime);
+                    const afterMin = parseTimeToMinutes(afterTime);
+
+                    if (afterMin - beforeMin <= 1) {
+                        alert(`Impossible d'ajouter une ligne entre ${beforeTime} et ${afterTime} : il n'y a pas de minute disponible entre les deux horaires.`);
+                        return;
+                    }
+
+                    const modal = document.getElementById('modal-add-row');
+                    const input = document.getElementById('input-new-time');
+                    const help = modal.querySelector('.insert-time-help');
+
+                    input.min = beforeTime;
+                    input.max = afterTime;
+                    input.value = formatMinutesToTime(Math.floor((beforeMin + afterMin) / 2));
+
+                    if (help) {
+                        help.innerHTML = `Horaire obligatoire entre <strong>${beforeTime}</strong> et <strong>${afterTime}</strong>.`;
+                    }
+
+                    modal.dataset.insertBeforeId = beforeId;
+                    modal.dataset.insertAfterId = afterId;
+                    modal.classList.remove('hidden');
+                    setTimeout(() => input.focus(), 50);
+                });
+            });
+
+            // Delete Individual Row
+            document.querySelectorAll('.btn-delete-row').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const rowId = e.target.closest('tr').dataset.rowId;
+                    scheduleData = scheduleData.filter(r => r.id !== rowId);
+                    recalculateScheduleCascade();
+                    saveSchedule();
+                    renderTable();
+                });
+            });
+        }
+
+        function renderSettingsDurations() {
+            const container = document.getElementById('settings-durations-list');
+            container.innerHTML = '';
+
+            COLUMNS_CONFIG.forEach(col => {
+                const tasks = columnTasks[col.id] || [];
+                const section = document.createElement('div');
+                section.className = 'border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm';
+
+                let tasksHtml = '';
+                if (tasks.length === 0) {
+                    tasksHtml = `<p class="p-3 text-xs text-slate-400 italic">Aucune tâche configurée dans cette colonne.</p>`;
+                } else {
+                    tasksHtml = `<div class="divide-y divide-slate-100">`;
+                    tasks.forEach((t, index) => {
+                        const durKey = t.key || t.name;
+                        const duration = taskDurations[durKey] !== undefined ? taskDurations[durKey] : 0;
+
+                        tasksHtml += `
+                            <div class="p-3 flex items-center justify-between gap-3 hover:bg-slate-50">
+                                <span class="text-xs font-semibold text-slate-800">${t.name}</span>
+                                <div class="flex items-center gap-3">
+                                    <div class="flex items-center gap-1">
+                                        <label class="text-[10px] text-slate-400 font-medium uppercase">Durée :</label>
+                                        <input type="number" min="0" max="360" value="${duration}" data-task-key="${durKey}" class="setting-duration-input w-16 text-center font-bold text-xs py-1 px-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 text-slate-800">
+                                        <span class="text-xs text-slate-500 font-medium">min</span>
+                                    </div>
+                                    <button type="button" data-col="${col.id}" data-index="${index}" class="btn-remove-task text-slate-300 hover:text-rose-600 p-1 hover:bg-rose-50 rounded transition" title="Supprimer la tâche">
+                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    tasksHtml += `</div>`;
+                }
+
+                section.innerHTML = `
+                    <div class="bg-slate-100 px-4 py-2.5 border-b border-slate-200 flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-800 uppercase tracking-wider">${col.label}</span>
+                        <span class="text-[10px] font-semibold text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">${tasks.length} tâche(s)</span>
+                    </div>
+                    ${tasksHtml}
+                `;
+
+                container.appendChild(section);
+            });
+
+            lucide.createIcons();
+
+            document.querySelectorAll('.btn-remove-task').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const colId = e.currentTarget.dataset.col;
+                    const index = parseInt(e.currentTarget.dataset.index, 10);
+                    if (colId && !isNaN(index)) {
+                        columnTasks[colId].splice(index, 1);
+                        saveColumnTasks();
+                        renderSettingsDurations();
+                    }
+                });
+            });
+        }
+
+        function attachEventListeners() {
+            // Clear Entire Table Button
+            document.getElementById('btn-clear-table').addEventListener('click', () => {
+                if (scheduleData.length === 0) {
+                    alert('Le tableau de production est déjà totalement vide.');
+                    return;
+                }
+                if (confirm('Voulez-vous vraiment supprimer toutes les lignes du planning ?')) {
+                    scheduleData = [];
+                    localStorage.removeItem('bakery_schedule_v6');
+                    saveSchedule();
+                    renderTable();
+                }
+            });
+
+            // Open Modals
+            document.getElementById('btn-add-row').addEventListener('click', () => {
+                document.getElementById('modal-add-row').classList.remove('hidden');
+            });
+            document.getElementById('btn-empty-add-row').addEventListener('click', () => {
+                document.getElementById('modal-add-row').classList.remove('hidden');
+            });
+            document.getElementById('btn-open-settings').addEventListener('click', () => {
+                renderSettingsDurations();
+                document.getElementById('modal-settings').classList.remove('hidden');
+            });
+
+            // Close Modals
+            document.querySelectorAll('.close-modal').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const addModal = document.getElementById('modal-add-row');
+                    addModal.classList.add('hidden');
+                    addModal.removeAttribute('data-insert-before-id');
+                    addModal.removeAttribute('data-insert-after-id');
+                    document.getElementById('modal-settings').classList.add('hidden');
+                    const input = document.getElementById('input-new-time');
+                    input.removeAttribute('min');
+                    input.removeAttribute('max');
+                    const help = addModal.querySelector('.insert-time-help');
+                    if (help) help.textContent = "L'horaire sera inséré au bon endroit par ordre chronologique.";
+                });
+            });
+
+            // Add Manual Time Row Form
+            document.getElementById('form-add-row').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const timeVal = document.getElementById('input-new-time').value;
+                if (!timeVal) return;
+
+                const addModal = document.getElementById('modal-add-row');
+                const insertBeforeId = addModal.dataset.insertBeforeId;
+                const insertAfterId = addModal.dataset.insertAfterId;
+
+                // Special mode: insert strictly between two existing rows.
+                if (insertBeforeId && insertAfterId) {
+                    const beforeIndex = scheduleData.findIndex(r => r.id === insertBeforeId);
+                    const afterIndex = scheduleData.findIndex(r => r.id === insertAfterId);
+
+                    if (beforeIndex === -1 || afterIndex === -1 || afterIndex !== beforeIndex + 1) {
+                        alert("Les lignes de référence ont changé. Veuillez recommencer.");
+                        return;
+                    }
+
+                    const newTimeMin = parseTimeToMinutes(timeVal);
+                    const beforeMin = parseTimeToMinutes(scheduleData[beforeIndex].time);
+                    const afterMin = parseTimeToMinutes(scheduleData[afterIndex].time);
+
+                    if (newTimeMin <= beforeMin || newTimeMin >= afterMin) {
+                        alert(`L'horaire doit être strictement compris entre ${scheduleData[beforeIndex].time} et ${scheduleData[afterIndex].time}.`);
+                        return;
+                    }
+
+                    const newRow = {
+                        id: Date.now().toString(),
+                        time: timeVal,
+                        isInsertedBetweenRows: true,
+                        bag_lendemain: null,
+                        bag_jour: null,
+                        pain_complet: null,
+                        pain_special: null,
+                        autre: null
+                    };
+
+                    scheduleData.splice(afterIndex, 0, newRow);
+
+                    // Do not cascade/recalculate here: the user explicitly chose
+                    // the time of the inserted row and existing rows must keep theirs.
+                    saveSchedule();
+                    renderTable();
+                } else {
+                    // Existing behavior for the global "Ajouter un horaire" button.
+                    const newRow = {
+                        id: Date.now().toString(),
+                        time: timeVal,
+                        bag_lendemain: null,
+                        bag_jour: null,
+                        pain_complet: null,
+                        pain_special: null,
+                        autre: null
+                    };
+
+                    scheduleData.push(newRow);
+                    recalculateScheduleCascade();
+                    saveSchedule();
+                    renderTable();
+                }
+
+                document.getElementById('input-new-time').value = '';
+                addModal.classList.add('hidden');
+                addModal.removeAttribute('data-insert-before-id');
+                addModal.removeAttribute('data-insert-after-id');
+                document.getElementById('input-new-time').removeAttribute('min');
+                document.getElementById('input-new-time').removeAttribute('max');
+                const help = addModal.querySelector('.insert-time-help');
+                if (help) help.textContent = "L'horaire sera inséré au bon endroit par ordre chronologique.";
+            });
+
+            // Add Custom Task inside Settings
+            document.getElementById('btn-add-custom-task').addEventListener('click', () => {
+                const colId = document.getElementById('new-task-col-select').value;
+                const taskName = document.getElementById('new-task-name').value.trim();
+                const durVal = document.getElementById('new-task-duration').value;
+
+                if (!taskName) {
+                    alert('Veuillez renseigner le nom de la tâche.');
+                    return;
+                }
+
+                const duration = durVal !== '' ? Math.max(0, parseInt(durVal, 10)) : 0;
+                const taskKey = `${taskName} (${colId})`;
+
+                if (!columnTasks[colId]) columnTasks[colId] = [];
+                columnTasks[colId].push({ name: taskName, key: taskKey });
+
+                taskDurations[taskKey] = duration;
+
+                saveColumnTasks();
+                saveDurations();
+
+                document.getElementById('new-task-name').value = '';
+                document.getElementById('new-task-duration').value = '';
+
+                renderSettingsDurations();
+                renderTable();
+            });
+
+            // Save Settings
+            document.getElementById('btn-save-settings').addEventListener('click', () => {
+                const inputs = document.querySelectorAll('.setting-duration-input');
+                inputs.forEach(input => {
+                    const key = input.dataset.taskKey;
+                    const val = parseInt(input.value, 10);
+                    if (key && !isNaN(val)) {
+                        taskDurations[key] = Math.max(0, val);
+                    }
+                });
+                saveDurations();
+                saveColumnTasks();
+                recalculateScheduleCascade();
+                renderTable();
+                document.getElementById('modal-settings').classList.add('hidden');
+            });
+
+            // Reset Settings to Factory Defaults
+            document.getElementById('btn-reset-defaults').addEventListener('click', () => {
+                if (confirm('Voulez-vous réinitialiser les durées et la liste des tâches à la configuration d\'usine ?')) {
+                    taskDurations = { ...FACTORY_DURATIONS };
+                    columnTasks = JSON.parse(JSON.stringify(FACTORY_COLUMN_TASKS));
+                    saveDurations();
+                    saveColumnTasks();
+                    renderSettingsDurations();
+                    recalculateScheduleCascade();
+                    renderTable();
+                }
+            });
+        }
+
+        // Initialize App on DOM Load
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
